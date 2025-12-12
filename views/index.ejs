@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>maxstream</title>
+</head>
+<body>
+    please click to enable audio
+</body>
+<script>
+    const ws = new WebSocket('ws://localhost:8080');
+    ws.binaryType = 'arraybuffer';
+    const ctx = new AudioContext({ sampleRate: 44100 });
+    ws.onmessage = e => {
+        const f32 = new Float32Array(e.data);
+        const buf = ctx.createBuffer(1, f32.length, 44100);
+        buf.getChannelData(0).set(f32);
+        const src = ctx.createBufferSource();
+        src.buffer = buf;
+        src.connect(ctx.destination);
+        src.start();
+    };
+</script>
